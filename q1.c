@@ -168,9 +168,9 @@ void fazRelatorio(t_tab_v tv, t_tab_p tp, t_tab_m tm) {
             tab_infratores[k].valorTotal += tm.vet[i].preco;
             tab_infratores[k].qtdMultas++;
 
-            // Força a sair dos loops internos sem usar break
-            j = tv.tam;  // Faz sair do loop de veículos
-            k = tp.tam;  // Faz sair do loop de proprietários
+            
+            j = tv.tam;
+            k = tp.tam; 
           }
         }
       }
