@@ -37,6 +37,12 @@ typedef struct {
   int tam;
 } t_tab_m;
 
+typedef struct {
+  char pessoa[50];
+  float valorTotal;
+  int qtdMultas;
+} t_ficha;
+
 // Função para carregar a tabela de veículos
 t_tab_v LoadTabV(char fileName[]) {
   FILE *arq = fopen(fileName, "rt");
@@ -115,8 +121,6 @@ t_tab_m LoadTabM(char fileName[]) {
   char linha[90];
   char *token;
 
-  fgets(linha, 80, arq); // Pula o cabeçalho
-
   aux.tam = 0;
 
   while (!feof(arq)) {
@@ -143,13 +147,7 @@ t_tab_m LoadTabM(char fileName[]) {
 
 void fazRelatorio(t_tab_v tv, t_tab_p tp, t_tab_m tm) {
 
-  typedef struct {
-    char pessoa[50];
-    float valorTotal;
-    int qtdMultas;
-  } t_ficha;
-
-  t_ficha tab_infratores[100]; // Para armazenar os dados de infratores
+  t_ficha tab_infratores[100];
   int infratoresCount = 0;
 
   // Inicializa as informações
@@ -163,11 +161,16 @@ void fazRelatorio(t_tab_v tv, t_tab_p tp, t_tab_m tm) {
   for (int i = 0; i < tm.tam; i++) {
     for (int j = 0; j < tv.tam; j++) {
       if (strcmp(tm.vet[i].placaM, tv.vet[j].placa) == 0) {
-        // Encontramos o CPF do proprietário
+        // Encontramos o proprietário do veículo da multa
         for (int k = 0; k < tp.tam; k++) {
           if (strcmp(tv.vet[j].cpfprop, tp.vet[k].cpf) == 0) {
+            // Encontramos o proprietário na tabela de proprietários
             tab_infratores[k].valorTotal += tm.vet[i].preco;
             tab_infratores[k].qtdMultas++;
+
+            // Força a sair dos loops internos sem usar break
+            j = tv.tam;  // Faz sair do loop de veículos
+            k = tp.tam;  // Faz sair do loop de proprietários
           }
         }
       }
