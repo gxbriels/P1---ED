@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
   char placaM[50];
   char dataM[50];
-  float preco; // Alterei para tipo float para representar valores monetários
+  float preco;
 } t_item_m;
 
 typedef struct {
@@ -54,24 +54,24 @@ t_tab_v LoadTabV(char fileName[]) {
 
   aux.tam = 0;
 
-  while (!feof(arq)) {
-    fgets(linha, 63, arq);
-    if (linha[strlen(linha) - 1] == '\n')
-      linha[strlen(linha) - 1] = '\0';
+  while (fgets(linha, 63, arq) != NULL) {
+    linha[strcspn(linha, "\r\n")] = '\0'; // Remove nova linha
 
-    token = strtok(linha, ",");
-    strcpy(aux.vet[aux.tam].placa, token);
+    if (strlen(linha) > 0) {
+        token = strtok(linha, ",");
+        if (token != NULL) strcpy(aux.vet[aux.tam].placa, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].marca, token);
+        token = strtok(NULL, ",");
+        if (token != NULL) strcpy(aux.vet[aux.tam].marca, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].modelo, token);
+        token = strtok(NULL, ",");
+        if (token != NULL) strcpy(aux.vet[aux.tam].modelo, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].cpfprop, token);
+        token = strtok(NULL, ",");
+        if (token != NULL) strcpy(aux.vet[aux.tam].cpfprop, token);
 
-    aux.tam++;
+        aux.tam++;
+    }
   }
 
   fclose(arq);
@@ -89,26 +89,25 @@ t_tab_p LoadTabP(char fileName[]) {
 
   aux.tam = 0;
 
-  while (!feof(arq)) {
-    fgets(linha, 80, arq);
+  while (fgets(linha, 80, arq) != NULL) {
+      linha[strcspn(linha, "\r\n")] = '\0'; // Remove nova linha
 
-    if (linha[strlen(linha) - 1] == '\n')
-      linha[strlen(linha) - 1] = '\0';
+      if (strlen(linha) > 0) {
+          token = strtok(linha, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].cpf, token);
 
-    token = strtok(linha, ",");
-    strcpy(aux.vet[aux.tam].cpf, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].nome, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].nome, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].email, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].email, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].celular, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].celular, token);
-
-    aux.tam++;
-  }
+          aux.tam++;
+      }
+    }
 
   fclose(arq);
   return aux;
@@ -123,22 +122,21 @@ t_tab_m LoadTabM(char fileName[]) {
 
   aux.tam = 0;
 
-  while (!feof(arq)) {
-    fgets(linha, 80, arq);
+  while (fgets(linha, 80, arq) != NULL) {
+      linha[strcspn(linha, "\r\n")] = '\0'; // Remove nova linha
 
-    if (linha[strlen(linha) - 1] == '\n')
-      linha[strlen(linha) - 1] = '\0';
+      if (strlen(linha) > 0) {
+          token = strtok(linha, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].placaM, token);
 
-    token = strtok(linha, ",");
-    strcpy(aux.vet[aux.tam].placaM, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].dataM, token);
 
-    token = strtok(NULL, ",");
-    strcpy(aux.vet[aux.tam].dataM, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) aux.vet[aux.tam].preco = atof(token);
 
-    token = strtok(NULL, ",");
-    aux.vet[aux.tam].preco = atof(token); // Convertendo para float
-
-    aux.tam++;
+          aux.tam++;
+      }
   }
 
   fclose(arq);
@@ -148,85 +146,72 @@ t_tab_m LoadTabM(char fileName[]) {
 void fazRelatorio(t_tab_v tv, t_tab_p tp, t_tab_m tm) {
 
   t_ficha tab_infratores[100];
-  int infratoresCount = 0;
 
-  // Inicializa as informações
   for (int i = 0; i < tp.tam; i++) {
-    strcpy(tab_infratores[i].pessoa, tp.vet[i].nome);
-    tab_infratores[i].valorTotal = 0;
-    tab_infratores[i].qtdMultas = 0;
+      strcpy(tab_infratores[i].pessoa, tp.vet[i].nome);
+      tab_infratores[i].valorTotal = 0;
+      tab_infratores[i].qtdMultas = 0;
   }
 
-  // Associando as multas aos proprietários e calculando o total
   for (int i = 0; i < tm.tam; i++) {
-    for (int j = 0; j < tv.tam; j++) {
-      if (strcmp(tm.vet[i].placaM, tv.vet[j].placa) == 0) {
-        // Encontramos o proprietário do veículo da multa
-        for (int k = 0; k < tp.tam; k++) {
-          if (strcmp(tv.vet[j].cpfprop, tp.vet[k].cpf) == 0) {
-            // Encontramos o proprietário na tabela de proprietários
-            tab_infratores[k].valorTotal += tm.vet[i].preco;
-            tab_infratores[k].qtdMultas++;
-
-            
-            j = tv.tam;
-            k = tp.tam; 
+      for (int j = 0; j < tv.tam; j++) {
+          if (strcmp(tm.vet[i].placaM, tv.vet[j].placa) == 0) {
+              for (int k = 0; k < tp.tam; k++) {
+                  if (strcmp(tv.vet[j].cpfprop, tp.vet[k].cpf) == 0) {
+                      tab_infratores[k].valorTotal += tm.vet[i].preco;
+                      tab_infratores[k].qtdMultas++;
+                      j = tv.tam;
+                      k = tp.tam;
+                  }
+              }
           }
-        }
       }
-    }
   }
 
-  // Exibir os dados do relatório
-  printf(
-      "RELATÓRIO VALOR TOTAL (R$) E QUANTIDADE DE MULTAS POR PROPRIETÁRIO\n\n");
+  printf("RELATÓRIO VALOR TOTAL (R$) E QUANTIDADE DE MULTAS POR PROPRIETÁRIO\n\n");
 
   for (int i = 0; i < tp.tam; i++) {
-    if (tab_infratores[i].qtdMultas > 0) { // Só exibe quem tem multas
-      printf("%s    R$ %.2f    %d multas\n ", tab_infratores[i].pessoa,tab_infratores[i].valorTotal, tab_infratores[i].qtdMultas);
-    }
+      if (tab_infratores[i].qtdMultas > 0) {
+          printf("%s    R$ %.2f    %d multas\n ", tab_infratores[i].pessoa, tab_infratores[i].valorTotal, tab_infratores[i].qtdMultas);
+      }
   }
 
   printf("\n\n");
 
-  // Encontrar o maior e menor infrator
   float maiorTotal = 0, menorTotal = 9999999;
   int maiorInfrator = -1, menorInfrator = -1;
 
   for (int i = 0; i < tp.tam; i++) {
-    if (tab_infratores[i].qtdMultas > 0) {
-      if (tab_infratores[i].valorTotal > maiorTotal) {
-        maiorTotal = tab_infratores[i].valorTotal;
-        maiorInfrator = i;
+      if (tab_infratores[i].qtdMultas > 0) {
+          if (tab_infratores[i].valorTotal > maiorTotal) {
+              maiorTotal = tab_infratores[i].valorTotal;
+              maiorInfrator = i;
+          }
+          if (tab_infratores[i].valorTotal < menorTotal) {
+              menorTotal = tab_infratores[i].valorTotal;
+              menorInfrator = i;
+          }
       }
-      if (tab_infratores[i].valorTotal < menorTotal) {
-        menorTotal = tab_infratores[i].valorTotal;
-        menorInfrator = i;
-      }
-    }
   }
 
-  // Exibir os maiores e menores infratores
   if (maiorInfrator != -1) {
-    printf("MAIOR INFRATOR: %s, R$ %.2f, %d multas\n",
-           tab_infratores[maiorInfrator].pessoa, maiorTotal,
-           tab_infratores[maiorInfrator].qtdMultas);
+      printf("MAIOR INFRATOR: %s, R$ %.2f, %d multas\n",
+              tab_infratores[maiorInfrator].pessoa, maiorTotal,
+              tab_infratores[maiorInfrator].qtdMultas);
   }
 
   if (menorInfrator != -1) {
-    printf("MENOR INFRATOR: %s, R$ %.2f, %d multas\n",
-           tab_infratores[menorInfrator].pessoa, menorTotal,
-           tab_infratores[menorInfrator].qtdMultas);
+      printf("MENOR INFRATOR: %s, R$ %.2f, %d multas\n",
+              tab_infratores[menorInfrator].pessoa, menorTotal,
+              tab_infratores[menorInfrator].qtdMultas);
   }
 }
 
 int main() {
-  // Carregar os arquivos
   t_tab_v veiculos = LoadTabV("tabveiculos.txt");
   t_tab_p proprietarios = LoadTabP("tabproprietarios.txt");
   t_tab_m multas = LoadTabM("tabmultas.txt");
 
-  // Gerar o relatório
   fazRelatorio(veiculos, proprietarios, multas);
 
   return 0;
