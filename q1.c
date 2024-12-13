@@ -55,23 +55,26 @@ t_tab_v LoadTabV(char fileName[]) {
   aux.tam = 0;
 
   while (fgets(linha, 63, arq) != NULL) {
-    linha[strcspn(linha, "\r\n")] = '\0'; // Remove nova linha
+      size_t len = strlen(linha);
+      if (len > 0 && (linha[len - 1] == '\n' || linha[len - 1] == '\r')) {
+          linha[len - 1] = '\0';
+      }
 
-    if (strlen(linha) > 0) {
-        token = strtok(linha, ",");
-        if (token != NULL) strcpy(aux.vet[aux.tam].placa, token);
+      if (strlen(linha) > 0) {
+          token = strtok(linha, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].placa, token);
 
-        token = strtok(NULL, ",");
-        if (token != NULL) strcpy(aux.vet[aux.tam].marca, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].marca, token);
 
-        token = strtok(NULL, ",");
-        if (token != NULL) strcpy(aux.vet[aux.tam].modelo, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].modelo, token);
 
-        token = strtok(NULL, ",");
-        if (token != NULL) strcpy(aux.vet[aux.tam].cpfprop, token);
+          token = strtok(NULL, ",");
+          if (token != NULL) strcpy(aux.vet[aux.tam].cpfprop, token);
 
-        aux.tam++;
-    }
+          aux.tam++;
+      }
   }
 
   fclose(arq);
@@ -90,7 +93,10 @@ t_tab_p LoadTabP(char fileName[]) {
   aux.tam = 0;
 
   while (fgets(linha, 80, arq) != NULL) {
-      linha[strcspn(linha, "\r\n")] = '\0'; // Remove nova linha
+      size_t len = strlen(linha);
+      if (len > 0 && (linha[len - 1] == '\n' || linha[len - 1] == '\r')) {
+          linha[len - 1] = '\0';
+      }
 
       if (strlen(linha) > 0) {
           token = strtok(linha, ",");
@@ -107,7 +113,7 @@ t_tab_p LoadTabP(char fileName[]) {
 
           aux.tam++;
       }
-    }
+  }
 
   fclose(arq);
   return aux;
@@ -123,7 +129,10 @@ t_tab_m LoadTabM(char fileName[]) {
   aux.tam = 0;
 
   while (fgets(linha, 80, arq) != NULL) {
-      linha[strcspn(linha, "\r\n")] = '\0'; // Remove nova linha
+      size_t len = strlen(linha);
+      if (len > 0 && (linha[len - 1] == '\n' || linha[len - 1] == '\r')) {
+          linha[len - 1] = '\0';
+      }
 
       if (strlen(linha) > 0) {
           token = strtok(linha, ",");
